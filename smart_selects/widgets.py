@@ -68,6 +68,7 @@ class ChainedSelect(Select):
                         .change();
 
                     if (!chain_val) {
+                        $select.trigger("chain-complete");
                         return;
                     }
 
@@ -94,6 +95,7 @@ class ChainedSelect(Select):
                         }
 
                         $select.change();
+                        $select.trigger("chain-complete");
                     });
                 });
             })
