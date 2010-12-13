@@ -87,7 +87,7 @@ class ChainedSelect(Select):
                 }
 
                 $("#id_%(chainfield)s").change(function(){
-                    var start_value = $("select#%(id)s").val();
+                    var start_value = $("#%(id)s").val();
                     var val = $(this).val();
                     fill_field(val, start_value);
                 })
