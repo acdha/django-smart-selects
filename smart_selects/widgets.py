@@ -55,45 +55,46 @@ class ChainedSelect(Select):
         //<![CDATA[
         (function($) {
             $(document).ready(function(){
-                function fill_field(val, init_value){
-                    if (!val || val==''){
-                        options = '<option value="" selected>%(empty_label)s<'+'/option>';
-                        $("#%(id)s").html(options);
-                        $("#%(id)s").trigger('change');
+                var $chainfield = $("#id_%(chainfield)s"),
+                    $select = $("#%(id)s"),
+                    auto_choose = %(auto_choose)s;
+
+                $chainfield.change(function() {
+                    var chain_val = $chainfield.val(),
+                        original_value = $select.val();
+
+                    $select.empty()
+                        .append($('<option value="" selected>').text('%(empty_label)s'))
+                        .change();
+
+                    if (!chain_val) {
                         return;
                     }
 
-                    $.getJSON("%(url)s/"+val+"/", function(j){
-                        var options = '<option value="">%(empty_label)s<'+'/option>',
-                            auto_choose = %(auto_choose)s;
-
-                        for (var i = 0; i < j.length; i++) {
-                            options += '<option value="' + j[i].value + '">' + j[i].display + '<'+'/option>';
+                    $.getJSON("%(url)s/" + chain_val + "/", function(data) {
+                        for (var i = 0; i < data.length; i++) {
+                            $('<option>')
+                                .attr("value", data[i].value)
+                                .text(data[i].display)
+                                .appendTo($select);
                         }
 
-                        $("#%(id)s").html(options);
-                        $('#%(id)s option:first').attr('selected', 'selected');
+                        $select.find("option").first().attr("selected", "selected");
 
-                        if (init_value) {
-                            $('#%(id)s option[value="'+ init_value +'"]').attr('selected', 'selected');
+                        if (original_value) {
+                            // We can't simply use .val() here because it will
+                            // break certain browsers if original_value is no
+                            // longer present
+                            $select.find('option[value="' + original_value + '"]')
+                                .attr("selected", "selected");
                         }
-                        if (auto_choose && j.length == 1) {
-                            $('#%(id)s option[value="'+ j[0].value +'"]').attr('selected', 'selected');
+
+                        if (auto_choose && data.length == 1) {
+                            $select.val(data[0].value);
                         }
 
-                        $("#%(id)s").trigger('change');
-                    })
-                }
-
-                if(!$("#id_%(chainfield)s").hasClass("chained")){
-                    var val = $("#id_%(chainfield)s").val();
-                    fill_field(val, "%(value)s");
-                }
-
-                $("#id_%(chainfield)s").change(function() {
-                    var start_value = $("#%(id)s").val();
-                    var val = $(this).val();
-                    fill_field(val, start_value);
+                        $select.change();
+                    });
                 });
             })
         })(django.jQuery || jQuery);
