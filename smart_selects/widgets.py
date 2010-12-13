@@ -57,26 +57,30 @@ class ChainedSelect(Select):
             $(document).ready(function(){
                 function fill_field(val, init_value){
                     if (!val || val==''){
-                        options = '<option value="">%(empty_label)s<'+'/option>';
+                        options = '<option value="" selected>%(empty_label)s<'+'/option>';
                         $("#%(id)s").html(options);
-                        $('#%(id)s option:first').attr('selected', 'selected');
                         $("#%(id)s").trigger('change');
                         return;
                     }
+
                     $.getJSON("%(url)s/"+val+"/", function(j){
-                        var options = '<option value="">%(empty_label)s<'+'/option>';
+                        var options = '<option value="">%(empty_label)s<'+'/option>',
+                            auto_choose = %(auto_choose)s;
+
                         for (var i = 0; i < j.length; i++) {
                             options += '<option value="' + j[i].value + '">' + j[i].display + '<'+'/option>';
                         }
+
                         $("#%(id)s").html(options);
                         $('#%(id)s option:first').attr('selected', 'selected');
-                        var auto_choose = %(auto_choose)s;
-                        if(init_value){
+
+                        if (init_value) {
                             $('#%(id)s option[value="'+ init_value +'"]').attr('selected', 'selected');
                         }
-                        if(auto_choose && j.length == 1){
+                        if (auto_choose && j.length == 1) {
                             $('#%(id)s option[value="'+ j[0].value +'"]').attr('selected', 'selected');
                         }
+
                         $("#%(id)s").trigger('change');
                     })
                 }
@@ -86,11 +90,11 @@ class ChainedSelect(Select):
                     fill_field(val, "%(value)s");
                 }
 
-                $("#id_%(chainfield)s").change(function(){
+                $("#id_%(chainfield)s").change(function() {
                     var start_value = $("#%(id)s").val();
                     var val = $(this).val();
                     fill_field(val, start_value);
-                })
+                });
             })
         })(django.jQuery || jQuery);
         //]]>
